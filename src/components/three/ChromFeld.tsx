@@ -5,18 +5,6 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment, Lightformer, MeshDistortMaterial } from "@react-three/drei";
 import * as THREE from "three";
 
-/**
- * Die Signatur-Animation: ein Tropfen flüssiges Chrom.
- *
- * - Reagiert auf Zeiger UND Finger (window-pointermove, kein Hover-only).
- *   Er folgt der Hand leicht, neigt sich ihr zu und wird unter schneller
- *   Bewegung flüssiger — Bewegung mit Gewicht (gedämpft), kein Snapping.
- * - Die Spiegelung kommt aus einer prozeduralen Studio-Umgebung
- *   (Lightformer) — kein externes HDRI, kein Netz-Request, DSGVO-sauber.
- * - prefers-reduced-motion: statischer Tropfen, ein einziger Render.
- * - Wird der Hero verlassen, pausiert die Render-Schleife (Prop `aktiv`).
- */
-
 type Zeiger = { x: number; y: number; v: number };
 
 function Tropfen({
@@ -27,8 +15,6 @@ function Tropfen({
   reduziert: boolean;
 }) {
   const gruppe = useRef<THREE.Group>(null!);
-  // MeshDistortMaterial erweitert MeshPhysicalMaterial um distort/speed —
-  // dafür gibt es keinen exportierten Instanz-Typ, daher gezielt locker:
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const material = useRef<any>(null!);
   const grob =
@@ -37,18 +23,13 @@ function Tropfen({
   useFrame((state, delta) => {
     const g = gruppe.current;
     if (!g) return;
-    const d = Math.min(delta, 0.05); // Tab-Wechsel nicht nachruckeln lassen
+    const d = Math.min(delta, 0.05);
     const { viewport } = state;
     const schmal = viewport.aspect < 0.95;
     const z = zeiger.current;
 
-    // Scroll-Drift: Während der Hero aus dem Bild scrollt, sinkt der
-    // Tropfen leicht ab und tritt zurück — Tiefe statt starrem Mitfahren.
     const scrollAnteil = Math.min(1, window.scrollY / window.innerHeight);
 
-    // Ruheposition: rechts neben der Headline (Desktop), im freien Raum
-    // oberhalb des Texts (Mobil). Zeiger und Scroll ziehen ihn aus der Ruhe;
-    // die Dämpfung gibt der Bewegung ihr Gewicht.
     const zielX = (schmal ? viewport.width * 0.14 : viewport.width * 0.24) + z.x * 0.45;
     const zielY =
       (schmal ? viewport.height * 0.21 : viewport.height * 0.05) +
@@ -57,11 +38,9 @@ function Tropfen({
     g.position.x = THREE.MathUtils.damp(g.position.x, zielX, 3, d);
     g.position.y = THREE.MathUtils.damp(g.position.y, zielY, 3, d);
 
-    // Eintritt beim ersten Laden: Skala wächst gedämpft von 0
     const zielSkala = (schmal ? 1.05 : 1.5) * (1 - scrollAnteil * 0.18);
     g.scale.setScalar(THREE.MathUtils.damp(g.scale.x, zielSkala, 2.4, d));
 
-    // Der Tropfen neigt sich der Hand zu und dreht sich träge weiter
     g.rotation.x = THREE.MathUtils.damp(g.rotation.x, -z.y * 0.5, 3, d);
     g.rotation.y = THREE.MathUtils.damp(
       g.rotation.y,
@@ -70,7 +49,6 @@ function Tropfen({
       d
     );
 
-    // Verformung: ruhiges Atmen, unter Bewegung flüssiger — klingt ab
     if (material.current && !reduziert) {
       const ziel = 0.3 + Math.min(z.v, 1) * 0.26;
       material.current.distort = THREE.MathUtils.damp(material.current.distort, ziel, 4, d);
@@ -82,7 +60,6 @@ function Tropfen({
   return (
     <group ref={gruppe} scale={0}>
       <mesh>
-        {/* Mobil weniger Geometrie — 60 fps vor Detailgrad */}
         <icosahedronGeometry args={[1, grob ? 4 : 5]} />
         <MeshDistortMaterial
           ref={material}
@@ -107,8 +84,6 @@ export default function ChromFeld({
 }) {
   const zeiger = useRef<Zeiger>({ x: 0, y: 0, v: 0 });
 
-  // Zeiger global verfolgen (das Canvas selbst ist pointer-events-none,
-  // damit Buttons und Links darüber/darunter normal bedienbar bleiben).
   useEffect(() => {
     if (reduziert) return;
     let lx = 0;
@@ -127,10 +102,6 @@ export default function ChromFeld({
     };
     window.addEventListener("pointermove", onMove, { passive: true });
 
-    // Tiefen-Parallaxe per Geräte-Neigung (Handy): Gyroskop speist denselben
-    // Zeiger-Ref. Android liefert sofort; iOS verlangt eine Berechtigung,
-    // die nur aus einer Geste heraus angefragt werden darf — daher einmalig
-    // beim ersten Touch, still scheiternd, ohne den Besucher zu behelligen.
     const aufNeigung = (e: DeviceOrientationEvent) => {
       if (e.gamma == null || e.beta == null) return;
       const z = zeiger.current;
@@ -173,12 +144,16 @@ export default function ChromFeld({
       dpr={[1, 1.75]}
       camera={{ position: [0, 0, 7], fov: 32 }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+      style={{
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        pointerEvents: "none",
+      }}
     >
       <Tropfen zeiger={zeiger} reduziert={reduziert} />
 
-      {/* Prozedurales Studio: weiße Decke, kühle Stahl-Seiten und ein
-          einziger Kupfer-Glint von unten — die Markenfarbe wandert als
-          warmer Reflex über das Chrom. */}
       <Environment resolution={256} frames={1}>
         <color attach="background" args={["#b9bfc8"]} />
         <Lightformer
