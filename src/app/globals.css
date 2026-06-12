@@ -1,0 +1,173 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   Stundenwerk · Design-Tokens — Richtung B „Porzellan & Chrom"
+   Hell, präzise, Baujahr 2200. Tiefe kommt aus Licht und Schatten,
+   nicht aus Rundungen. Kupfer ist der einzige warme Punkt.
+   ───────────────────────────────────────────────────────────── */
+
+@theme {
+  /* Farben */
+  --color-porzellan: #f7f6f3; /* Grundfläche */
+  --color-nebel: #e9e7e1; /* zweite Fläche, Karten-Hintergründe */
+  --color-dunst: #dedbd3; /* Hairlines auf Nebel, tiefere Fläche */
+  --color-tinte: #16181d; /* Text */
+  --color-graphit: #4a4f59; /* gedämpfter Text */
+  --color-kupfer: #c56b3f; /* CTA — der einzige warme Punkt */
+  --color-kupfer-tief: #a4532d;
+  --color-chrom-hell: #e8ecf2; /* Chrom-Verlauf: hell → */
+  --color-chrom: #9aa6b8; /*                 mittel → */
+  --color-chrom-tief: #5c6878; /*             tief     */
+
+  /* Typografie */
+  --font-display: var(--font-archivo);
+  --font-sans: var(--font-hanken);
+  --font-mono: var(--font-jbmono);
+
+  /* Bewegung */
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Layout */
+  --spacing-section: clamp(6rem, 14vh, 11rem);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    @apply bg-porzellan font-sans text-tinte antialiased;
+    font-feature-settings: "ss01" on;
+  }
+
+  ::selection {
+    background: var(--color-kupfer);
+    color: var(--color-porzellan);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-kupfer);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Anker landen unterhalb der klebrigen Navigation */
+  section[id] {
+    scroll-margin-top: 5rem;
+  }
+}
+
+@utility hairline-t {
+  border-top: 1px solid color-mix(in oklab, var(--color-tinte) 10%, transparent);
+}
+
+@utility display-tight {
+  /* Display-Headlines: Archivo leicht verbreitert, eng gesetzt */
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 560;
+  letter-spacing: -0.025em;
+  line-height: 0.98;
+  text-wrap: balance;
+}
+
+@utility eyebrow {
+  /* Mono-Label über Sektionen */
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-graphit);
+}
+
+/* ── Eintritts-Animation (erster Seitenaufruf) ───────────────── */
+@keyframes aufstieg {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.hero-rise {
+  animation: aufstieg 0.9s var(--ease-expo) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise {
+    animation: none;
+  }
+}
+
+/* ── Lenis (empfohlene Basis-Styles) ─────────────────────────── */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ── Scroll-Reveal ───────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.8s var(--ease-expo),
+    transform 0.8s var(--ease-expo);
+}
+.reveal-an {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ── Rechner ─────────────────────────────────────────────────── */
+input[type="range"] {
+  accent-color: var(--color-kupfer);
+}
+
+/* ── FAQ ─────────────────────────────────────────────────────── */
+.faq summary {
+  list-style: none;
+}
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+.faq .faq-plus {
+  transition: transform 0.3s var(--ease-expo);
+}
+.faq details[open] .faq-plus {
+  transform: rotate(45deg);
+}
+
+/* ── Eigener Cursor ──────────────────────────────────────────── */
+html.hat-cursor,
+html.hat-cursor * {
+  cursor: none !important;
+}
+[data-magnet] {
+  will-change: transform;
+}
