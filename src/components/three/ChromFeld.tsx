@@ -45,9 +45,8 @@ function Tropfen({
 
     // Scroll-Anteil relativ zur Hero-Höhe — Tropfen sinkt sanft,
     // aber bleibt länger im Bild (divisor 1.4 statt 1.0).
-    const heroH = typeof window !== "undefined"
-      ? (document.getElementById("hero")?.offsetHeight ?? window.innerHeight)
-      : window.innerHeight;
+    const heroH =
+      document.getElementById("hero")?.offsetHeight ?? window.innerHeight;
     const scrollAnteil = Math.min(1, z.scrollY / (heroH * 0.9));
 
     // Ruheposition: proportional verschoben, auf Mobil dem Scroll folgen.
