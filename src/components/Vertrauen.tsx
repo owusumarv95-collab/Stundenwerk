@@ -31,13 +31,13 @@ export default function Vertrauen() {
               Wer dahinter steht. Wo Ihre Daten liegen.
             </h2>
             <div className="mt-7 max-w-xl space-y-4 text-lg leading-relaxed text-graphit">
-              <p>
-                Stundenwerk baue und betreue ich persönlich — ich stehe seit
-                Jahren selbst in der Nachhilfe, von der Grundschule bis zum
-                Abitur. Diese Software entstammt der Praxis: nicht aus
-                Verkaufsfolien, sondern aus dem Alltag mit echten Schülerakten
-                und Monatsend-Abrechnungen.
-              </p>
+             <p>
+  Stundenwerk baue und betreue ich persönlich — ich stehe seit
+  Jahren selbst in der Nachhilfe, von der Grundschule bis zum
+  Abitur. Diese Software entstammt der Praxis: nicht aus
+  Verkaufsfolien, sondern aus dem Alltag mit echten Schülerakten
+  und Monatsend-Abrechnungen.
+</p>
               <p>
                 Für Sie heißt das: Sie sprechen mit dem Menschen, der den Code
                 geschrieben hat. Keine Hotline, keine Warteschleife, keine
