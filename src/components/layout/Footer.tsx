@@ -2,7 +2,7 @@ import Link from "next/link";
 import { site } from "@/lib/site-config";
 import Container from "@/components/ui/Container";
 
-/** Footer-Skelett — Rechtslinks stehen, Kontaktdaten folgen über site-config. */
+/** Footer — Rechtslinks stehen, Kontaktdaten folgen über site-config. */
 export default function Footer() {
   return (
     <footer className="hairline-t bg-nebel/60">
@@ -16,7 +16,7 @@ export default function Footer() {
           </p>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-graphit">
             Verwaltung für Nachhilfe-Institute. Eigene Instanz pro Institut,
-            Daten in der EU. Gebaut in {site.city}.
+            Daten in der EU.
           </p>
         </div>
 
@@ -55,9 +55,7 @@ export default function Footer() {
 
       <div className="hairline-t">
         <Container className="flex flex-col gap-2 py-6 text-xs text-graphit sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © {new Date().getFullYear()} {site.name} · {site.owner}, {site.city}
-          </p>
+          <p>© {new Date().getFullYear()} {site.name}</p>
           <p className="font-mono tracking-wide">DSGVO-konform · Hosting in der EU</p>
         </Container>
       </div>
