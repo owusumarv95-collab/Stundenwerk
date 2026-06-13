@@ -5,6 +5,9 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SmoothScroll from "@/components/layout/SmoothScroll";
 import Cursor from "@/components/fx/Cursor";
+// FloatingVisual hat "use client" → Next.js rendert es client-seitig,
+// der Server-Import ist sicher (Canvas-Code wird nie serverseitig ausgeführt).
+import FloatingVisual from "@/components/fx/FloatingVisual";
 import "./globals.css";
 
 const basisUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -65,8 +68,17 @@ export default function RootLayout({
         </a>
         <SmoothScroll />
         <Cursor />
+
+        {/* Chrome-Blase: fixed, z-2 — unter dem Header (z-30), hinter dem Inhalt (z-10) */}
+        <FloatingVisual />
+
         <Header />
-        <main id="inhalt">{children}</main>
+
+        {/* relative z-10: Sections erscheinen über der Blase (z-2),
+            aber transparente Hintergründe lassen die Blase durchscheinen */}
+        <main id="inhalt" className="relative z-10">
+          {children}
+        </main>
         <Footer />
       </body>
     </html>
