@@ -1,20 +1,15 @@
 import { site } from "@/lib/site-config";
 import Container from "@/components/ui/Container";
 import Button from "@/components/ui/Button";
-import HeroVisual from "@/components/sections/HeroVisual";
 
 /**
- * Hero — Stufe 2a: statisches Grundgerüst.
- * Die Signatur-Animation (Chromtropfen, R3F) kommt in Stufe 2b und legt
- * sich als eigene Ebene hinter/neben die Headline — das Layout hier ist
- * dafür bereits ausgelegt (rechter Freiraum ab lg).
+ * Hero — Text-Ebene.
+ * Die Chrome-Blase lebt jetzt global in FloatingVisual (position: fixed)
+ * und ist über die gesamte Seite sichtbar — nicht mehr hier geclipt.
  */
 export default function Hero() {
   return (
-    <section id="hero" className="relative flex min-h-svh flex-col justify-end overflow-hidden">
-      {/* Signatur-Ebene: der reaktive Chromtropfen (WebGL, z-0) */}
-      <HeroVisual />
-
+    <section id="hero" className="relative flex min-h-svh flex-col justify-end">
       <Container wide className="relative z-10 pb-14 pt-36 md:pb-20">
         <p className="eyebrow hero-rise [animation-delay:60ms]">Verwaltungssoftware für Nachhilfe-Institute</p>
 
