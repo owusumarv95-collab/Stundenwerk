@@ -18,7 +18,7 @@ const abschnitte = [
   {
     titel: "1. Verantwortlicher",
     text: [
-      `Verantwortlich für die Datenverarbeitung auf dieser Website ist ${site.owner}, [Straße und Hausnummer], [PLZ] ${site.city}, E-Mail: [E-Mail-Adresse].`,
+      `Verantwortlich für die Datenverarbeitung auf dieser Website ist [Name], [Straße und Hausnummer], [PLZ] [Stadt], E-Mail: [E-Mail-Adresse].`,
     ],
   },
   {
