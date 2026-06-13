@@ -6,18 +6,17 @@ import { Environment, Lightformer, MeshDistortMaterial } from "@react-three/drei
 import * as THREE from "three";
 
 /**
- * Signatur-Animation: reaktiver Chromtropfen (R3F).
+ * Signatur-Animation: reaktiver Chromtropfen (R3F) — v3.
  *
- * Verbesserungen v2:
- * - Scroll-Tracking: Tropfen folgt dem Finger beim Scrollen (mobil)
- *   statt linear wegzudriften — bleibt im sichtbaren Hero-Bereich verankert.
- * - DPR bis 2.0 auf Retina/High-DPI (war 1.75) — mehr Pixel, schärfer.
- * - Stärkere Lichtkontraste: Decken-Fill heller, Kupfer-Glint intensiver,
- *   kältere Seiten — mehr Chrom-Charakter, mehr Tiefe im Spiegelbild.
- * - Höhere Icosahedron-Auflösung: Detail 6 statt 5 (Desktop), 5 statt 4 (Mobil).
- * - Scroll-Verankerung: heroHeight wird gemessen, Tropfen bleibt
- *   proportional im Hero-Bereich verankert statt absolut zu sinken.
- * - Gyro-Empfindlichkeit erhöht: natürlicheres Kippen auf dem Handy.
+ * Änderungen v3 (globales Fixed-Layer):
+ * - Canvas ist jetzt global fixed (via FloatingVisual), nicht mehr auf den
+ *   Hero geclipt → Blase immer sichtbar, unabhängig vom Scroll-Stand.
+ * - DPR: [1, 2.5] statt [1, 2] → auf modernen Retina-/High-DPI-Screens
+ *   merklich schärfer, besonders auf iPhone Pro und neueren Android-Geräten.
+ * - Scroll-Drift verteilt sich jetzt über 3 Viewport-Höhen statt über die
+ *   Hero-Höhe allein: die Blase wandert sehr sanft von oben-rechts nach
+ *   mittig-rechts über den gesamten Scroll-Bereich der Seite.
+ * - Environment resolution: 768 (war 512) → schärfere Reflexionen im Chrom.
  */
 
 type Zeiger = { x: number; y: number; v: number; scrollY: number };
@@ -43,13 +42,11 @@ function Tropfen({
     const schmal = viewport.aspect < 0.95;
     const z = zeiger.current;
 
-    // Scroll-Anteil relativ zur Hero-Höhe — Tropfen sinkt sanft,
-    // aber bleibt länger im Bild (divisor 1.4 statt 1.0).
-    const heroH =
-      document.getElementById("hero")?.offsetHeight ?? window.innerHeight;
-    const scrollAnteil = Math.min(1, z.scrollY / (heroH * 0.9));
+    // Scroll-Drift: über 3 Viewport-Höhen verteilt → sehr sanfte Bewegung
+    // die Blase bleibt den gesamten Scroll über im sichtbaren Bereich.
+    const scrollAnteil = Math.min(1, z.scrollY / (window.innerHeight * 3));
 
-    // Ruheposition: proportional verschoben, auf Mobil dem Scroll folgen.
+    // Ruheposition: rechts oben, sinkt mit dem Scroll leicht nach unten.
     const zielX = (schmal ? viewport.width * 0.10 : viewport.width * 0.26) + z.x * 0.5;
     const zielY =
       (schmal ? viewport.height * 0.28 : viewport.height * 0.06) +
@@ -58,11 +55,11 @@ function Tropfen({
     g.position.x = THREE.MathUtils.damp(g.position.x, zielX, 3.5, d);
     g.position.y = THREE.MathUtils.damp(g.position.y, zielY, 3.5, d);
 
-    // Skala: auf Mobil minimal größer, Scroll-Shrink sanfter.
-    const zielSkala = (schmal ? 1.15 : 1.55) * (1 - scrollAnteil * 0.14);
+    // Skala: Scroll-Shrink minimal halten, damit die Blase immer sichtbar bleibt.
+    const zielSkala = (schmal ? 1.15 : 1.55) * (1 - scrollAnteil * 0.08);
     g.scale.setScalar(THREE.MathUtils.damp(g.scale.x, zielSkala, 2.4, d));
 
-    // Neigung: etwas reaktiver als vorher.
+    // Neigung: Maus/Gyro-reaktiv.
     g.rotation.x = THREE.MathUtils.damp(g.rotation.x, -z.y * 0.55, 3.5, d);
     g.rotation.y = THREE.MathUtils.damp(
       g.rotation.y,
@@ -82,14 +79,14 @@ function Tropfen({
   return (
     <group ref={gruppe} scale={0}>
       <mesh>
-        {/* Höhere Auflösung: 6 (Desktop) / 5 (Touch) statt vorher 5/4 */}
+        {/* Auflösung 6 (Desktop) / 5 (Touch) — Icosahedron-Detail */}
         <icosahedronGeometry args={[1, grob ? 5 : 6]} />
         <MeshDistortMaterial
           ref={material}
           color="#ccd4e0"
           metalness={1}
-          roughness={0.045}
-          envMapIntensity={1.6}
+          roughness={0.04}
+          envMapIntensity={1.8}
           distort={0.28}
           speed={reduziert ? 0 : 1.6}
         />
@@ -137,7 +134,7 @@ export default function ChromFeld({
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("scroll", onScroll, { passive: true });
 
-    // Gyro: empfindlicher (/ 22 statt / 28), realistische Tilt-Mitte
+    // Gyro: empfindlicher (/ 22), realistische Tilt-Mitte
     const aufNeigung = (e: DeviceOrientationEvent) => {
       if (e.gamma == null || e.beta == null) return;
       const z = zeiger.current;
@@ -179,9 +176,9 @@ export default function ChromFeld({
   return (
     <Canvas
       frameloop={reduziert ? "demand" : aktiv ? "always" : "never"}
-      // DPR bis 2.0 auf Retina — war 1.75, macht auf modernen Handys
-      // einen sichtbaren Unterschied in der Chrom-Schärfe.
-      dpr={[1, 2]}
+      // DPR 2.5: auf Retina/High-DPI (iPhone Pro, Samsung S-Serie, etc.)
+      // deutlich schärfer als vorher — VRAM-Kosten bleiben vertretbar.
+      dpr={[1, 2.5]}
       camera={{ position: [0, 0, 7], fov: 32 }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       style={{
@@ -194,12 +191,12 @@ export default function ChromFeld({
     >
       <Tropfen zeiger={zeiger} reduziert={reduziert} />
 
-      {/* Studio-Licht v2: härtere Kontraste, mehr Tiefe im Spiegelbild.
-          Decke heller, Kupfer-Glint intensiver, kältere rechte Seite. */}
-      <Environment resolution={512} frames={1}>
+      {/* Studio-Licht v3: schärfere Reflexionen durch höhere env-Auflösung.
+          Decke hell, Kupfer-Glint von unten, kühle rechte Seite. */}
+      <Environment resolution={768} frames={1}>
         <color attach="background" args={["#b2bac4"]} />
 
-        {/* Decken-Fill: hart, groß — Haupt-Highlight oben */}
+        {/* Decken-Fill: Haupt-Highlight oben */}
         <Lightformer
           form="rect"
           intensity={4.5}
@@ -229,12 +226,12 @@ export default function ChromFeld({
         {/* Kupfer-Glint von unten — Markenfarbe als warmer Reflex */}
         <Lightformer
           form="circle"
-          intensity={1.2}
+          intensity={1.4}
           position={[2, -4, 2.5]}
           scale={3}
           color="#c56b3f"
         />
-        {/* Kleiner Gegenlicht-Punkt oben rechts — Tiefe */}
+        {/* Gegenlicht-Punkt oben rechts — Tiefe */}
         <Lightformer
           form="circle"
           intensity={0.9}
