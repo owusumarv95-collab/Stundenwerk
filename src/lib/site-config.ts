@@ -1,14 +1,12 @@
 /**
- * Zentrale Konfiguration — alle Inhalte, die Naowu noch liefert,
- * werden NUR hier eingetragen und ziehen sich durch die ganze Seite.
+ * Zentrale Konfiguration — alle Inhalte werden NUR hier eingetragen
+ * und ziehen sich durch die ganze Seite.
  */
 export const site = {
   name: "Stundenwerk",
   claim: "Weniger verwalten. Mehr unterrichten.",
   description:
     "Stundenwerk bündelt Schüler, Lehrkräfte, Stunden und Abrechnung für Nachhilfe-Institute — in einer eigenen, abgeschotteten Instanz mit Daten in der EU.",
-  owner: "Marvis Moore Owusu",
-  city: "Solingen",
 
   // TODO (Naowu): Kontaktdaten eintragen — Stufe 5 verdrahtet sie.
   email: null as string | null,
