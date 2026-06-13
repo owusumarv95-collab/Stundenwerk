@@ -28,11 +28,11 @@ export default function Impressum() {
             Angaben gemäß § 5 DDG
           </h2>
           <p className="mt-3 text-tinte">
-            {site.owner}
+            [Name]
             <br />
             [Straße und Hausnummer]
             <br />
-            [PLZ] {site.city}
+            [PLZ] [Stadt]
           </p>
         </section>
 
@@ -59,7 +59,7 @@ export default function Impressum() {
             Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV
           </h2>
           <p className="mt-3">
-            {site.owner}, [Straße und Hausnummer], [PLZ] {site.city}
+            [Name], [Straße und Hausnummer], [PLZ] [Stadt]
           </p>
         </section>
 
